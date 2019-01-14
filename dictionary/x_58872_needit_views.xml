@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element label="NeedIt_Views" max_length="40" name="x_58872_needit_views" type="collection">
+        <element label="Dashboard" max_length="32" name="dashboard" reference="pa_dashboards" type="reference"/>
+        <element label="User" max_length="32" name="user" reference="sys_user" type="reference"/>
+        <index name="index">
+            <element name="user"/>
+        </index>
+        <index name="index2">
+            <element name="dashboard"/>
+        </index>
+    </element>
+</database>

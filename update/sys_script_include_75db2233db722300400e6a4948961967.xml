@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_58872_needit.DashboardViews</api_name>
+        <client_callable>false</client_callable>
+        <description/>
+        <name>DashboardViews</name>
+        <script><![CDATA[/* sn_dashboard_usage.DashboardViews */
+var DashboardViews = Class.create();
+
+DashboardViews.prototype = {
+    
+    initialize: function ()
+    {
+        this.logSource = gs.getProperty('x_58872_needit.log.source', 'DashboardViews');
+        this.verboseLog = (gs.getProperty('x_58872_needit.log.verbose', 'false') == 'true');
+    },
+
+    loadViews: function (encodedQuery)
+    {
+        var bus = [];
+        var gr = new GlideRecord('sys_ui_navigator_history');
+        if(encodedQuery)
+        {
+            gr.addEncodedQuery(encodedQuery);
+        }
+        gr.addQuery('url', 'STARTSWITH', '$pa_dashboard.do?').addOrCondition('url', 'STARTSWITH', '$dashboards.do?');
+        gr.query();
+        this._info('Loading Dashboard views from UI Navigstor History to Usage table: ' + gr.getRowCount());
+        while(gr.next())
+        {
+            var match = /sysparm_dashboard=([a-z0-9]{32})/g.exec(gr.getValue('url'));
+            var dashboard_sys_id = match[1];
+            if(gs.nil(dashboard_sys_id))
+            {
+                this._warning('Unable to parse dashboard sys_id from: ' + gr.getValue('url'));
+                continue;
+            }
+            this.addDashboardUsage(dashboard_sys_id, gr.getValue('user'), gr.getValue('sys_created_on'));
+        }
+        this._info('Dashboard Usage views transfer complete');
+        return true;
+    },
+
+    addDashboardUsage: function(dashboard, user, viewTime)
+    {
+        var gr = new GlideRecord('x_58872_needit_views');
+        gr.autoSysFields(false);
+        gr.setValue('dashboard', dashboard);
+        gr.setValue('user', user);
+        gr.setValue('sys_created_on', viewTime);
+        gr.insert();
+    },
+    
+    _info: function(s)
+    {
+        gs.info("[{0}] {1}", this.logSource, s);
+    },
+    
+    _warning: function(s)
+    {
+        gs.warn("[{0}] {1}" + s, this.logSource, s);
+    },
+    
+    _error: function(s)
+    {
+        gs.error("[{0}] {1}" + s, this.logSource, s);
+    },
+    
+    _debug: function(s)
+    {
+        if (this.verboseLog == 'true') {
+            //debug logs only show if Verbose
+            gs.debug("[{0}] {1}" + s, this.logSource, s);
+        }
+    },
+    
+    type: 'DashboardViews'
+    
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-01-11 15:37:29</sys_created_on>
+        <sys_id>75db2233db722300400e6a4948961967</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>DashboardViews</sys_name>
+        <sys_package display_value="NeedIt" source="x_58872_needit">6ead8e780f603200cd674f8ce1050ed1</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="NeedIt">6ead8e780f603200cd674f8ce1050ed1</sys_scope>
+        <sys_update_name>sys_script_include_75db2233db722300400e6a4948961967</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-01-11 17:05:03</sys_updated_on>
+    </sys_script_include>
+</record_update>
